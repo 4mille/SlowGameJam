@@ -27,14 +27,17 @@ public class GeneratorInteract : MonoBehaviour
         {
             // Dépose la pile
             pileInTrigger.transform.SetParent(null);
-            pileInTrigger.transform.position = transform.position + Vector3.up * 0.5f; // ajuster selon la hauteur
+            pileInTrigger.transform.position = transform.position + Vector3.up * 0.5f;
+
+            // Marque la pile comme déposée
             pileInTrigger.isCarried = false;
+            pileInTrigger.isDeposited = true;
 
             // Change le matérial du générateur
             if (generatorRenderer != null && depositedMaterial != null)
                 generatorRenderer.material = depositedMaterial;
 
-            // Cache l'UI
+            // Cacher l'UI après dépôt
             if (uiPressE != null)
                 uiPressE.SetActive(false);
 
@@ -45,10 +48,9 @@ public class GeneratorInteract : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         InteractablePile pile = other.GetComponent<InteractablePile>();
-        if (pile != null && pile.isCarried)
+        if (pile != null && pile.isCarried) // Vérifie que la pile est portée
         {
             pileInTrigger = pile;
-
             if (uiPressE != null)
                 uiPressE.SetActive(true);
         }

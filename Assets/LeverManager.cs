@@ -48,4 +48,10 @@ public class LeverManager : MonoBehaviour
             activeLever = null;
         }
     }
+
+    // Vérifie si un levier est actif
+    public bool HasActiveLever()
+    {
+        return activeLever != null;
+    }
 }

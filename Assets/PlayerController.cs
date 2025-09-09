@@ -1,58 +1,66 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
     [Header("Mouvement")]
-    public float vitesse = 5f;
+    public float speed = 5f;
+    public float jumpForce = 5f;
 
-    [Header("Saut")]
-    public float forceSaut = 5f;
-    private bool auSol;
+    [HideInInspector]
+    public bool canMove = true; // Bloque le mouvement si false (pendant contrôle du mesh)
 
     private Rigidbody rb;
+    private bool isGrounded = true;
 
-    void Start()
+    private void Start()
     {
         rb = GetComponent<Rigidbody>();
     }
 
-    void Update()
+    private void Update()
     {
-        // Déplacement gauche/droite
-        float inputX = 0f;
+        if (!canMove) return;
+
+        // Déplacement horizontal (X/Z)
+        float moveX = 0f;
+        float moveZ = 0f;
 
         if (Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.LeftArrow))
-            inputX = -1f;
+            moveX = -1f;
         else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
-            inputX = 1f;
+            moveX = 1f;
 
-        Vector3 velocity = rb.linearVelocity;
-        velocity.x = inputX * vitesse; 
-        rb.linearVelocity = new Vector3(velocity.x, rb.linearVelocity.y, rb.linearVelocity.z);
+        if (Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.UpArrow))
+            moveZ = 1f;
+        else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+            moveZ = -1f;
+
+        Vector3 move = new Vector3(moveX, 0f, moveZ).normalized * speed * Time.deltaTime;
+        rb.MovePosition(transform.position + move);
 
         // Saut
-        if (Input.GetKeyDown(KeyCode.Space) && auSol)
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            rb.AddForce(Vector3.up * forceSaut, ForceMode.Impulse);
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            isGrounded = false;
         }
     }
 
-    void OnCollisionEnter(Collision collision)
+    private void OnCollisionEnter(Collision collision)
     {
-        // Vérifie si on touche le sol
+        // Vérifie si on touche le sol pour réactiver le saut
         if (collision.contacts.Length > 0)
         {
-            ContactPoint contact = collision.contacts[0];
-            if (Vector3.Dot(contact.normal, Vector3.up) > 0.5f) // sol assez plat
+            // Simple vérification : si collision par dessous
+            foreach (ContactPoint contact in collision.contacts)
             {
-                auSol = true;
+                if (contact.normal.y > 0.5f)
+                {
+                    isGrounded = true;
+                    break;
+                }
             }
         }
-    }
-
-    void OnCollisionExit(Collision collision)
-    {
-        // Si on n’est plus en contact, on n’est plus au sol
-        auSol = false;
     }
 }

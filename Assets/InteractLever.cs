@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class InteractLever : MonoBehaviour
 {
     [Header("UI")]
-    public GameObject uiPressE; // ton élément UI "Press E"
+    public GameObject uiPressE; // UI "Press E"
 
     [Header("Rotation du levier")]
     public float rotationAngle = -45f; 
@@ -42,12 +42,10 @@ public class InteractLever : MonoBehaviour
         {
             if (!isRotated)
             {
-                // Active ce levier
                 LeverManager.Instance.SetActiveLever(this);
             }
             else
             {
-                // Désactive ce levier
                 LeverManager.Instance.ClearActiveLever(this);
             }
         }

@@ -10,9 +10,12 @@ public class InteractablePile : MonoBehaviour
     public Material carriedMaterial; // material à appliquer quand portée
     private Material originalMaterial;
 
-    private bool playerInRange = false;
-
+    [HideInInspector]
     public bool isCarried = false;
+    [HideInInspector]
+    public bool isDeposited = false;
+
+    private bool playerInRange = false;
     private Transform playerTransform;
     private Renderer rend;
 
@@ -28,13 +31,13 @@ public class InteractablePile : MonoBehaviour
 
     private void Update()
     {
-        if (playerInRange && uiPressE.activeSelf && Input.GetKeyDown(KeyCode.E) && !isCarried)
+        if (playerInRange && uiPressE.activeSelf && Input.GetKeyDown(KeyCode.E) && !isCarried && !isDeposited)
         {
             // La Pile devient enfant du Player
             transform.SetParent(playerTransform);
 
             // Positionne la pile devant le player
-            transform.localPosition = new Vector3(0f, 1f, 1f); // ajuste selon la taille du player
+            transform.localPosition = new Vector3(0f, 1f, 1f);
             transform.localRotation = Quaternion.identity;
 
             // Change le material
@@ -51,7 +54,7 @@ public class InteractablePile : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.layer == LayerMask.NameToLayer("Player") && !isCarried)
+        if (other.gameObject.layer == LayerMask.NameToLayer("Player") && !isCarried && !isDeposited)
         {
             playerInRange = true;
             playerTransform = other.transform;
