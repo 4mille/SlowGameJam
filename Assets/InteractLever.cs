@@ -18,6 +18,9 @@ public class InteractLever : MonoBehaviour
     private bool playerInRange = false;
     private bool isRotated = false;
 
+    // Propriété publique pour LeverUI
+    public bool IsRotated => isRotated;
+
     private void Start()
     {
         if (uiPressE != null)

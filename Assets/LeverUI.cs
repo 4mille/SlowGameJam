@@ -5,11 +5,14 @@ public class LeverUI : MonoBehaviour
 {
     [Header("UI")]
     public GameObject uiPressE; // UI "Press E"
-    public GameObject uiPressB; // UI "Press B" pour contrôle du mesh
+    public GameObject uiPressB; // UI "Press B"
 
     [Header("Mesh à contrôler")]
     public Transform meshToControl;
     public MeshController meshController;
+
+    [Header("Levier requis")]
+    public InteractLever requiredLever; // Le levier spécifique qui doit être actif
 
     private bool playerInRange = false;
     private PlayerController playerController;
@@ -26,19 +29,20 @@ public class LeverUI : MonoBehaviour
     {
         if (!playerInRange) return;
 
-        bool anotherLeverActive = LeverManager.Instance != null && LeverManager.Instance.HasActiveLever();
+        // Vérifie si le levier requis est actif
+        bool isRequiredLeverActive = requiredLever != null && requiredLever.IsRotated;
 
-        // UI Press E : seulement si levier précédent actif et pas en contrôle du mesh
+        // UI Press E : seulement si levier requis actif et pas en contrôle du mesh
         if (!meshController.IsControlling)
         {
             if (uiPressE != null)
-                uiPressE.SetActive(anotherLeverActive);
+                uiPressE.SetActive(isRequiredLeverActive);
             if (uiPressB != null)
                 uiPressB.SetActive(false);
         }
 
         // Appui sur E pour contrôler le mesh
-        if (anotherLeverActive && Input.GetKeyDown(KeyCode.E) && meshController != null && meshToControl != null && !meshController.IsControlling)
+        if (isRequiredLeverActive && Input.GetKeyDown(KeyCode.E) && meshController != null && meshToControl != null && !meshController.IsControlling)
         {
             if (playerController == null)
                 playerController = FindObjectOfType<PlayerController>();
@@ -54,12 +58,12 @@ public class LeverUI : MonoBehaviour
         }
 
         // Vérifie si on a quitté le contrôle du mesh pour réafficher Press E
-        if (meshController.IsControlling == false)
+        if (!meshController.IsControlling)
         {
             if (uiPressB != null)
                 uiPressB.SetActive(false);
 
-            if (uiPressE != null && anotherLeverActive)
+            if (uiPressE != null && isRequiredLeverActive)
                 uiPressE.SetActive(true);
         }
     }

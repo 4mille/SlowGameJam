@@ -1694,9 +1694,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1340317668}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0.18515207, w: 0.9827099}
-  m_LocalPosition: {x: 0.893, y: 0.14, z: 0.461}
-  m_LocalScale: {x: 0.15, y: 0.15, z: 0.15}
+  m_LocalRotation: {x: -0, y: -0, z: 0.18515207, w: 0.9827099}
+  m_LocalPosition: {x: 0.89299977, y: 0.13999991, z: 0.461}
+  m_LocalScale: {x: 0.15000002, y: 0.15000002, z: 0.15}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -1985,6 +1985,7 @@ MonoBehaviour:
   uiPressB: {fileID: 406751015}
   meshToControl: {fileID: 327411105}
   meshController: {fileID: 699962446}
+  requiredLever: {fileID: 171565872}
 --- !u!136 &1770138460
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2087,8 +2088,8 @@ SceneRoots:
   - {fileID: 477672249}
   - {fileID: 115147365}
   - {fileID: 570526449}
-  - {fileID: 171565876}
   - {fileID: 1340317673}
+  - {fileID: 171565876}
   - {fileID: 1770138463}
   - {fileID: 658080088}
   - {fileID: 998744909}
