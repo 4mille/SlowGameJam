@@ -11,7 +11,8 @@ public class InteractablePile : MonoBehaviour
     private Material originalMaterial;
 
     private bool playerInRange = false;
-    private bool isCarried = false;
+
+    public bool isCarried = false;
     private Transform playerTransform;
     private Renderer rend;
 
