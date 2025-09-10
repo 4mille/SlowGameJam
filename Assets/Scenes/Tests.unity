@@ -601,9 +601,7 @@ GameObject:
   - component: {fileID: 330585545}
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
-  - component: {fileID: 330585548}
-  - component: {fileID: 330585549}
-  - component: {fileID: 330585550}
+  - component: {fileID: 330585551}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -628,7 +626,7 @@ Camera:
   m_GameObject: {fileID: 330585543}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
+  m_ClearFlags: 4
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -652,7 +650,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 57
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -709,7 +707,7 @@ MonoBehaviour:
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 1
-  m_Antialiasing: 0
+  m_Antialiasing: 2
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0
@@ -724,48 +722,12 @@ MonoBehaviour:
   m_Version: 2
   m_TaaSettings:
     m_Quality: 3
-    m_FrameInfluence: 0.1
+    m_FrameInfluence: 0.100000024
     m_JitterScale: 1
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
---- !u!114 &330585548
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 330585543}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ec9eff38afaf43ee9b57581e036a68d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 477672249}
-  offset: {x: 0, y: 2, z: -6}
-  smoothSpeed: 5
-  useLimits: 1
-  xLimits: {x: -10, y: 10}
-  yLimits: {x: 0, y: 2}
---- !u!114 &330585549
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 330585543}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 27e80d8f703ba4c43bb3a18055990fd6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 477672249}
-  offset: {x: 0, y: 0.22, z: -2.94}
-  smoothSpeed: 5
-  useLimits: 1
-  xLimits: {x: -10, y: 10}
-  yLimits: {x: 0, y: 5}
---- !u!114 &330585550
+--- !u!114 &330585551
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -774,16 +736,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 330585543}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc5639521e9054b54b906c6e849980a9, type: 3}
+  m_Script: {fileID: 11500000, guid: 1a6484a06d63e46a28d901581ca63815, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 477672249}
-  offset: {x: 0, y: 2, z: -4}
+  player: {fileID: 477672249}
+  sideScrollerOffset: {x: 0, y: 2, z: -6}
   smoothSpeed: 5
   zSmoothSpeed: 2
   useLimits: 1
   xLimits: {x: -10, y: 10}
   yLimits: {x: 0, y: 5}
+  meshCameraPosition: {x: 0, y: 0, z: 0}
+  meshCameraRotation: {x: 30, y: -30, z: 0}
+  meshSmoothSpeed: 5
 --- !u!1 &334328469
 GameObject:
   m_ObjectHideFlags: 0
@@ -1105,7 +1070,7 @@ GameObject:
   - component: {fileID: 477672251}
   m_Layer: 6
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1390,7 +1355,7 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1423,7 +1388,7 @@ Transform:
   m_GameObject: {fileID: 633305535}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.0887127, y: -0.00000023841858, z: 0.7044039}
+  m_LocalPosition: {x: -1.0887127, y: -0.00000023841858, z: -0.24}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1567,6 +1532,8 @@ MonoBehaviour:
   maxX: 5
   minY: 0
   maxY: 5
+  meshCameraPosition: {x: 0, y: 0, z: 0}
+  meshCameraRotation: {x: 30, y: -30, z: 0}
 --- !u!4 &699962447
 Transform:
   m_ObjectHideFlags: 0
@@ -2039,7 +2006,7 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -2072,7 +2039,7 @@ Transform:
   m_GameObject: {fileID: 1386978332}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.92, y: -0.00000023841858, z: 0.7044039}
+  m_LocalPosition: {x: -9.92, y: -0.00000023841858, z: 0.02}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
