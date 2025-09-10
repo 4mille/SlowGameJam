@@ -11,11 +11,23 @@ public class MeshController : MonoBehaviour
     public float minY = 0f;
     public float maxY = 5f;
 
+    [Header("Caméra")]
+    public Vector3 meshCameraPosition;
+    public Vector3 meshCameraRotation = new Vector3(30f, -30f, 0f);
+    private CameraControllerUnified camController;
+
     private bool isControlling = false;
     private Transform meshTransform;
     private PlayerController playerController;
 
-    public bool IsControlling => isControlling; // Propriété publique
+    public bool IsControlling => isControlling;
+
+    private void Start()
+    {
+        camController = Camera.main.GetComponent<CameraControllerUnified>();
+        if (camController == null)
+            Debug.LogWarning("CameraControllerUnified non trouvé sur Main Camera !");
+    }
 
     private void Update()
     {
@@ -29,6 +41,10 @@ public class MeshController : MonoBehaviour
 
             if (playerController != null)
                 playerController.canMove = true;
+
+            // Retour caméra au mode side-scroller
+            if (camController != null)
+                camController.ExitMeshMode();
 
             Debug.Log("Retour au contrôle normal du Player");
             return;
@@ -67,6 +83,15 @@ public class MeshController : MonoBehaviour
             playerController.canMove = false;
 
         isControlling = true;
-        Debug.Log("Contrôle du mesh activé, Player bloqué");
+
+        // Active la caméra en mode Mesh
+        if (camController != null)
+        {
+            camController.meshCameraPosition = meshCameraPosition;
+            camController.meshCameraRotation = meshCameraRotation;
+            camController.EnterMeshMode();
+        }
+
+        Debug.Log("Contrôle du mesh activé, Player bloqué, caméra en mode Mesh");
     }
 }
