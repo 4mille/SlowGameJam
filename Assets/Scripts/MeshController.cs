@@ -2,24 +2,31 @@ using UnityEngine;
 
 public class MeshController : MonoBehaviour
 {
+    [Header("Déplacement")]
     public float moveSpeed = 5f;
+
+    [Header("Limites de déplacement")]
+    public float minX = -5f;
+    public float maxX = 5f;
+    public float minY = 0f;
+    public float maxY = 5f;
+
     private bool isControlling = false;
     private Transform meshTransform;
     private PlayerController playerController;
 
-    public bool IsControlling => isControlling; // Propriété publique pour LeverUI
+    public bool IsControlling => isControlling; // Propriété publique
 
     private void Update()
     {
         if (!isControlling || meshTransform == null)
             return;
 
-        // Quitter le contrôle
+        // Quitter le contrôle avec Échap
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             isControlling = false;
 
-            // Rendre le contrôle au Player
             if (playerController != null)
                 playerController.canMove = true;
 
@@ -43,6 +50,12 @@ public class MeshController : MonoBehaviour
 
         Vector3 move = new Vector3(moveX, moveY, 0f) * moveSpeed * Time.deltaTime;
         meshTransform.position += move;
+
+        // Appliquer les limites avec Clamp
+        Vector3 clampedPos = meshTransform.position;
+        clampedPos.x = Mathf.Clamp(clampedPos.x, minX, maxX);
+        clampedPos.y = Mathf.Clamp(clampedPos.y, minY, maxY);
+        meshTransform.position = clampedPos;
     }
 
     public void StartControl(Transform mesh, PlayerController player)
@@ -50,7 +63,6 @@ public class MeshController : MonoBehaviour
         meshTransform = mesh;
         playerController = player;
 
-        // Bloque le Player
         if (playerController != null)
             playerController.canMove = false;
 

@@ -1,24 +1,24 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class InteractLever : MonoBehaviour
 {
     [Header("UI")]
-    public GameObject uiPressE; // UI "Press E"
+    public GameObject uiPressE;
 
     [Header("Rotation du levier")]
-    public float rotationAngle = -45f; 
+    public float rotationAngle = -45f;
     private Quaternion initialRotation;
 
     [Header("Lampe à contrôler")]
-    public GameObject lampe; 
+    public GameObject lampe;
     private Light lampeLight;
-    private Color couleurInitiale;
+
+    [Header("Référence générateur")]
+    public GeneratorInteract generator;
 
     private bool playerInRange = false;
     private bool isRotated = false;
 
-    // Propriété publique pour LeverUI
     public bool IsRotated => isRotated;
 
     private void Start()
@@ -32,26 +32,24 @@ public class InteractLever : MonoBehaviour
         {
             lampeLight = lampe.GetComponent<Light>();
             if (lampeLight != null)
-                couleurInitiale = lampeLight.color;
+                lampeLight.enabled = false; // 🔴 Éteinte par défaut
         }
 
-        // S’enregistre dans le manager
         LeverManager.Instance.RegisterLever(this);
     }
 
     private void Update()
     {
-        if (playerInRange && uiPressE.activeSelf && Input.GetKeyDown(KeyCode.E))
-        {
-            if (!isRotated)
-            {
-                LeverManager.Instance.SetActiveLever(this);
-            }
-            else
-            {
-                LeverManager.Instance.ClearActiveLever(this);
-            }
-        }
+        if (!playerInRange || !uiPressE.activeSelf || !Input.GetKeyDown(KeyCode.E))
+            return;
+
+        if (generator == null || !generator.IsPowered)
+            return;
+
+        if (!isRotated)
+            LeverManager.Instance.SetActiveLever(this);
+        else
+            LeverManager.Instance.ClearActiveLever(this);
     }
 
     public void Activate()
@@ -60,7 +58,10 @@ public class InteractLever : MonoBehaviour
         isRotated = true;
 
         if (lampeLight != null)
-            lampeLight.color = Color.green;
+        {
+            lampeLight.enabled = true;
+            lampeLight.color = Color.green; // 🟢 Active
+        }
     }
 
     public void Deactivate()
@@ -69,7 +70,20 @@ public class InteractLever : MonoBehaviour
         isRotated = false;
 
         if (lampeLight != null)
-            lampeLight.color = couleurInitiale;
+        {
+            lampeLight.enabled = true;
+            lampeLight.color = Color.red; // 🔴 Inactif mais allumé
+        }
+    }
+
+    // ⚡ Appelé par le générateur quand il est activé
+    public void OnGeneratorPowered()
+    {
+        if (lampeLight != null)
+        {
+            lampeLight.enabled = true;
+            lampeLight.color = Color.red;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -77,7 +91,8 @@ public class InteractLever : MonoBehaviour
         if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
             playerInRange = true;
-            if (uiPressE != null)
+
+            if (uiPressE != null && generator != null && generator.IsPowered)
                 uiPressE.SetActive(true);
         }
     }

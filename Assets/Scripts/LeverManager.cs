@@ -11,13 +11,9 @@ public class LeverManager : MonoBehaviour
     private void Awake()
     {
         if (Instance == null)
-        {
             Instance = this;
-        }
         else
-        {
             Destroy(gameObject);
-        }
     }
 
     public void RegisterLever(InteractLever lever)
@@ -28,14 +24,12 @@ public class LeverManager : MonoBehaviour
 
     public void SetActiveLever(InteractLever lever)
     {
-        // Désactive tous les autres leviers
         foreach (var l in allLevers)
         {
             if (l != lever)
                 l.Deactivate();
         }
 
-        // Active celui-ci
         lever.Activate();
         activeLever = lever;
     }
@@ -47,11 +41,5 @@ public class LeverManager : MonoBehaviour
             lever.Deactivate();
             activeLever = null;
         }
-    }
-
-    // Vérifie si un levier est actif
-    public bool HasActiveLever()
-    {
-        return activeLever != null;
     }
 }

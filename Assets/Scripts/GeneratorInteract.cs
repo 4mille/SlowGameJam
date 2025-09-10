@@ -1,56 +1,67 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GeneratorInteract : MonoBehaviour
 {
     [Header("UI")]
-    public GameObject uiPressE; // UI à afficher quand la pile est proche
+    public GameObject uiPressE;
 
-    [Header("Matérial")]
-    public Material depositedMaterial; // matérial du générateur quand la pile est déposée
+    [Header("Materials")]
+    public Material poweredMaterial;
+    private Material originalMaterial;
+    private Renderer rend;
 
-    private InteractablePile pileInTrigger = null;
-    private Renderer generatorRenderer;
+    private bool playerInRange = false;
+    private bool isPowered = false;
+    private InteractablePile pileInRange;
+
+    public bool IsPowered => isPowered;
 
     private void Start()
     {
         if (uiPressE != null)
             uiPressE.SetActive(false);
 
-        generatorRenderer = GetComponent<Renderer>();
+        rend = GetComponent<Renderer>();
+        if (rend != null)
+            originalMaterial = rend.material;
     }
 
     private void Update()
     {
-        // Si la pile est dans le trigger et UI active, on peut déposer
-        if (pileInTrigger != null && uiPressE.activeSelf && Input.GetKeyDown(KeyCode.E))
+        if (playerInRange && uiPressE.activeSelf && Input.GetKeyDown(KeyCode.E))
         {
-            // Dépose la pile
-            pileInTrigger.transform.SetParent(null);
-            pileInTrigger.transform.position = transform.position + Vector3.up * 0.5f;
+            if (pileInRange != null && pileInRange.IsCarried && !isPowered)
+            {
+                // Déposer la pile
+                pileInRange.transform.SetParent(null);
+                pileInRange.MarkAsDeposited();
 
-            // Marque la pile comme déposée
-            pileInTrigger.isCarried = false;
-            pileInTrigger.isDeposited = true;
+                // Changer le matériau du générateur
+                if (rend != null && poweredMaterial != null)
+                    rend.material = poweredMaterial;
 
-            // Change le matérial du générateur
-            if (generatorRenderer != null && depositedMaterial != null)
-                generatorRenderer.material = depositedMaterial;
+                if (uiPressE != null)
+                    uiPressE.SetActive(false);
 
-            // Cacher l'UI après dépôt
-            if (uiPressE != null)
-                uiPressE.SetActive(false);
+                isPowered = true;
 
-            pileInTrigger = null;
+                // ⚡ Allume toutes les lampes en rouge
+                foreach (var lever in FindObjectsOfType<InteractLever>())
+                {
+                    lever.OnGeneratorPowered();
+                }
+            }
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
         InteractablePile pile = other.GetComponent<InteractablePile>();
-        if (pile != null && pile.isCarried) // Vérifie que la pile est portée
+        if (pile != null && pile.IsCarried && !pile.IsDeposited && !isPowered)
         {
-            pileInTrigger = pile;
+            playerInRange = true;
+            pileInRange = pile;
+
             if (uiPressE != null)
                 uiPressE.SetActive(true);
         }
@@ -59,10 +70,10 @@ public class GeneratorInteract : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         InteractablePile pile = other.GetComponent<InteractablePile>();
-        if (pile != null)
+        if (pile != null && pile == pileInRange)
         {
-            if (pileInTrigger == pile)
-                pileInTrigger = null;
+            playerInRange = false;
+            pileInRange = null;
 
             if (uiPressE != null)
                 uiPressE.SetActive(false);

@@ -4,20 +4,21 @@ using UnityEngine.UI;
 public class InteractablePile : MonoBehaviour
 {
     [Header("UI")]
-    public GameObject uiPressE; // l'UI "Press E"
+    public GameObject uiPressE;
 
     [Header("Material")]
-    public Material carriedMaterial; // material à appliquer quand portée
+    public Material carriedMaterial;
     private Material originalMaterial;
-
-    [HideInInspector]
-    public bool isCarried = false;
-    [HideInInspector]
-    public bool isDeposited = false;
 
     private bool playerInRange = false;
     private Transform playerTransform;
     private Renderer rend;
+
+    private bool isCarried = false;
+    private bool isDeposited = false;
+
+    public bool IsCarried => isCarried;
+    public bool IsDeposited => isDeposited;
 
     private void Start()
     {
@@ -33,20 +34,17 @@ public class InteractablePile : MonoBehaviour
     {
         if (playerInRange && uiPressE.activeSelf && Input.GetKeyDown(KeyCode.E) && !isCarried && !isDeposited)
         {
-            // La Pile devient enfant du Player
+            // La pile devient enfant du joueur
             transform.SetParent(playerTransform);
-
-            // Positionne la pile devant le player
             transform.localPosition = new Vector3(0f, 1f, 1f);
             transform.localRotation = Quaternion.identity;
 
-            // Change le material
+            // Change le matériau
             if (rend != null && carriedMaterial != null)
                 rend.material = carriedMaterial;
 
             isCarried = true;
 
-            // On peut cacher l'UI si tu veux
             if (uiPressE != null)
                 uiPressE.SetActive(false);
         }
@@ -66,7 +64,7 @@ public class InteractablePile : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.layer == LayerMask.NameToLayer("Player") && !isCarried)
+        if (other.gameObject.layer == LayerMask.NameToLayer("Player") && !isCarried && !isDeposited)
         {
             playerInRange = false;
             playerTransform = null;
@@ -74,5 +72,12 @@ public class InteractablePile : MonoBehaviour
             if (uiPressE != null)
                 uiPressE.SetActive(false);
         }
+    }
+
+    public void MarkAsDeposited()
+    {
+        isCarried = false;
+        isDeposited = true;
+        transform.SetParent(null);
     }
 }
