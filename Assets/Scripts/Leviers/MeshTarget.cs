@@ -23,6 +23,11 @@ public class MeshTarget : MonoBehaviour
     private bool isSnapping = false;
     private Rigidbody rb;
 
+    [Header("Manager")]
+    public MeshPlacementManager manager;
+    public int meshIndex;
+    private bool isSnapped = false; // pour suivre l’état
+
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -52,7 +57,9 @@ public class MeshTarget : MonoBehaviour
         {
             transform.position = Vector3.Lerp(transform.position, CurrentTargetPosition(), snapSpeed * Time.deltaTime);
             if (Vector3.Distance(transform.position, CurrentTargetPosition()) <= snapFinishThreshold)
+            {
                 SnapImmediate();
+            }
         }
     }
 
@@ -70,6 +77,10 @@ public class MeshTarget : MonoBehaviour
     private void SnapImmediate()
     {
         transform.position = CurrentTargetPosition();
+        if (manager != null)
+{
+    manager.SetMeshPlaced(meshIndex);
+}
 
         if (rb != null)
         {
@@ -89,8 +100,14 @@ public class MeshTarget : MonoBehaviour
         isAtTarget = true;
         isSnapping = false;
 
-        onSnapped?.Invoke();
+        // **Nouvelle partie : notifier le manager**
+        if (!isSnapped && manager != null)
+        {
+            manager.SetMeshPlaced(meshIndex); // méthode qui incrémente un true dans la liste
+            isSnapped = true; // pour éviter de notifier plusieurs fois
+        }
 
+        onSnapped?.Invoke();
         Debug.Log($"{name} : Snap effectué, mesh verrouillé correctement.");
     }
 

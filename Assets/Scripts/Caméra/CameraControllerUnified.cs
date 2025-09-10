@@ -21,9 +21,14 @@ public class CameraControllerUnified : MonoBehaviour
     public float meshSmoothSpeed = 5f;
 
     private bool inMeshMode = false;
+
+    // **Cinematic override**
+    private bool isCinematicActive = false;
+    private Vector3 cinematicTargetPosition;
+    private Quaternion cinematicTargetRotation;
+    private float cinematicSpeed;
+
     private float targetZ;
-    private Vector3 sideScrollerPosition;
-    private Quaternion sideScrollerRotation;
 
     private void Start()
     {
@@ -32,15 +37,22 @@ public class CameraControllerUnified : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (isCinematicActive)
+        {
+            // Pendant la cinématique, on ignore tout le reste
+            transform.position = Vector3.Lerp(transform.position, cinematicTargetPosition, cinematicSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Lerp(transform.rotation, cinematicTargetRotation, cinematicSpeed * Time.deltaTime);
+            return;
+        }
+
         if (inMeshMode)
         {
-            // Mode Mesh fixe
             transform.position = Vector3.Lerp(transform.position, meshCameraPosition, meshSmoothSpeed * Time.deltaTime);
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(meshCameraRotation), meshSmoothSpeed * Time.deltaTime);
             return;
         }
 
-        // Side-scroller
+        // Side-scroller normal
         float desiredX = player.position.x + sideScrollerOffset.x;
         float desiredY = player.position.y + sideScrollerOffset.y;
 
@@ -50,7 +62,6 @@ public class CameraControllerUnified : MonoBehaviour
             desiredY = Mathf.Clamp(desiredY, yLimits.x, yLimits.y);
         }
 
-        // Appliquer targetZ (zones)
         Vector3 newPosition = new Vector3(
             Mathf.Lerp(transform.position.x, desiredX, smoothSpeed * Time.deltaTime),
             Mathf.Lerp(transform.position.y, desiredY, smoothSpeed * Time.deltaTime),
@@ -68,14 +79,30 @@ public class CameraControllerUnified : MonoBehaviour
 
     public void EnterMeshMode()
     {
-        sideScrollerPosition = transform.position;
-        sideScrollerRotation = transform.rotation;
         inMeshMode = true;
     }
 
     public void ExitMeshMode()
     {
         inMeshMode = false;
-        // Retour automatique → targetZ reste actif
+    }
+
+    /// <summary>
+    /// Lance une cinématique : la caméra se déplace vers un point et ignore les autres logiques.
+    /// </summary>
+    public void StartCinematic(Vector3 targetPos, Quaternion targetRot, float speed)
+    {
+        cinematicTargetPosition = targetPos;
+        cinematicTargetRotation = targetRot;
+        cinematicSpeed = speed;
+        isCinematicActive = true;
+    }
+
+    /// <summary>
+    /// Termine la cinématique et reprend le contrôle normal.
+    /// </summary>
+    public void EndCinematic()
+    {
+        isCinematicActive = false;
     }
 }

@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 5f;
 
     [HideInInspector]
-    public bool canMove = true; // Bloque le mouvement si false (pendant contrôle du mesh)
+    public bool canMove = true; // Bloque le mouvement si false
 
     private Rigidbody rb;
     private bool isGrounded = true;
@@ -49,10 +49,8 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        // Vérifie si on touche le sol pour réactiver le saut
         if (collision.contacts.Length > 0)
         {
-            // Simple vérification : si collision par dessous
             foreach (ContactPoint contact in collision.contacts)
             {
                 if (contact.normal.y > 0.5f)
@@ -63,4 +61,22 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
+   public void LockPlayer()
+{
+    canMove = false;
+    this.enabled = false; // désactive le script Update
+    Rigidbody rb = GetComponent<Rigidbody>();
+    rb.linearVelocity = Vector3.zero;
+    rb.angularVelocity = Vector3.zero;
+    rb.isKinematic = true;
+}
+
+public void UnlockPlayer()
+{
+    Rigidbody rb = GetComponent<Rigidbody>();
+    rb.isKinematic = false;
+    this.enabled = true; // réactive le script Update
+    canMove = true;
+}
 }
