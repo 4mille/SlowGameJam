@@ -11,63 +11,50 @@ public class MeshController : MonoBehaviour
     public float minY = 0f;
     public float maxY = 5f;
 
-    [Header("Caméra")]
-    public Vector3 meshCameraPosition;
+    [Header("Caméra (optionnel)")]
+    public Transform meshCameraPoint;
     public Vector3 meshCameraRotation = new Vector3(30f, -30f, 0f);
-    private CameraControllerUnified camController;
 
     private bool isControlling = false;
+    private bool isLocked = false; // verrouillage du mesh, pas du mode controller
     private Transform meshTransform;
     private PlayerController playerController;
+    private CameraControllerUnified camController;
 
     public bool IsControlling => isControlling;
 
     private void Start()
     {
-        camController = Camera.main.GetComponent<CameraControllerUnified>();
-        if (camController == null)
-            Debug.LogWarning("CameraControllerUnified non trouvé sur Main Camera !");
+        if (Camera.main != null)
+            camController = Camera.main.GetComponent<CameraControllerUnified>();
     }
 
     private void Update()
     {
-        if (!isControlling || meshTransform == null)
-            return;
+        if (!isControlling) return;
 
-        // Quitter le contrôle avec Échap
+        // Échap fonctionne toujours
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            isControlling = false;
-
-            if (playerController != null)
-                playerController.canMove = true;
-
-            // Retour caméra au mode side-scroller
-            if (camController != null)
-                camController.ExitMeshMode();
-
-            Debug.Log("Retour au contrôle normal du Player");
+            ForceStopControl();
             return;
         }
 
-        // Déplacement sur X et Y
+        // Si mesh verrouillé, on ignore juste le mouvement
+        if (meshTransform == null || isLocked) return;
+
         float moveX = 0f;
         float moveY = 0f;
 
-        if (Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.LeftArrow))
-            moveX = -1f;
-        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
-            moveX = 1f;
+        if (Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.LeftArrow)) moveX = -1f;
+        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) moveX = 1f;
 
-        if (Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.UpArrow))
-            moveY = 1f;
-        else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
-            moveY = -1f;
+        if (Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.UpArrow)) moveY = 1f;
+        else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) moveY = -1f;
 
         Vector3 move = new Vector3(moveX, moveY, 0f) * moveSpeed * Time.deltaTime;
         meshTransform.position += move;
 
-        // Appliquer les limites avec Clamp
         Vector3 clampedPos = meshTransform.position;
         clampedPos.x = Mathf.Clamp(clampedPos.x, minX, maxX);
         clampedPos.y = Mathf.Clamp(clampedPos.y, minY, maxY);
@@ -83,15 +70,38 @@ public class MeshController : MonoBehaviour
             playerController.canMove = false;
 
         isControlling = true;
+        isLocked = false;
 
-        // Active la caméra en mode Mesh
-        if (camController != null)
+        if (camController != null && meshCameraPoint != null)
         {
-            camController.meshCameraPosition = meshCameraPosition;
-            camController.meshCameraRotation = meshCameraRotation;
+            camController.meshCameraPosition = meshCameraPoint.position;
+            camController.meshCameraRotation = meshCameraPoint.eulerAngles;
             camController.EnterMeshMode();
         }
 
-        Debug.Log("Contrôle du mesh activé, Player bloqué, caméra en mode Mesh");
+        Debug.Log($"MeshController ({name}) : contrôle du mesh activé.");
     }
+
+    public void ForceStopControl()
+    {
+        if (!isControlling) return;
+
+        isControlling = false;
+
+        if (playerController != null) playerController.canMove = true;
+
+        if (camController != null)
+            camController.ExitMeshMode();
+
+        Debug.Log($"MeshController ({name}) : contrôle arrêté.");
+    }
+
+    // Verrouille juste le mesh, pas le contrôle global
+    public void LockMesh()
+    {
+        isLocked = true;
+        Debug.Log($"MeshController ({name}) : mesh verrouillé.");
+    }
+
+    public bool ControlsTransform(Transform t) => meshTransform == t;
 }

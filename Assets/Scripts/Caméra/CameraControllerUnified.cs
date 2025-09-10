@@ -17,7 +17,7 @@ public class CameraControllerUnified : MonoBehaviour
 
     [Header("Mode Mesh")]
     public Vector3 meshCameraPosition;
-    public Vector3 meshCameraRotation = new Vector3(30f, -30f, 0f);
+    public Vector3 meshCameraRotation = new Vector3(0f, 0f, 0f);
     public float meshSmoothSpeed = 5f;
 
     private bool inMeshMode = false;
