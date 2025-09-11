@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class LampUICinematicTrigger : MonoBehaviour
 {
@@ -19,12 +20,21 @@ public class LampUICinematicTrigger : MonoBehaviour
     [Header("Crédits")]
     public string creditsSceneName;
 
+    [Header("Transition")]
+    [Tooltip("Image noire plein écran pour le fondu (alpha 0 au départ)")]
+    public Image fadeImage;
+    public float fadeDuration = 1.5f;
+
     private bool cinematicPlayed = false;
 
     private void Start()
     {
         if (uiPanel != null)
             uiPanel.SetActive(false);
+
+        // Si on arrive depuis une autre scène, on fade-in
+        if (fadeImage != null)
+            StartCoroutine(Fade(1f, 0f, fadeDuration));
     }
 
     private void OnTriggerEnter(Collider other)
@@ -65,24 +75,44 @@ public class LampUICinematicTrigger : MonoBehaviour
         if (pc != null)
             pc.LockPlayer();
 
-        // Activer la cinématique sur le CameraControllerUnified
-        cameraController.StartCinematic(cinematicTarget.position, cinematicTarget.rotation, 1f / moveDuration); // vitesse inversée pour Lerp
+        // Déplacer la caméra via ton controller existant (si nécessaire)
+        cameraController.StartCinematic(
+            cinematicTarget.position,
+            cinematicTarget.rotation,
+            1f / moveDuration
+        );
 
-        // Attendre que la caméra atteigne sa position
-        float elapsed = 0f;
-        while (elapsed < moveDuration)
+        // Attente de la fin du mouvement de caméra
+        yield return new WaitForSeconds(moveDuration + holdDuration);
+
+        // Fondu vers noir puis chargement de la scène des crédits
+        if (!string.IsNullOrEmpty(creditsSceneName) && fadeImage != null)
         {
-            elapsed += Time.deltaTime;
-            yield return null;
+            yield return StartCoroutine(Fade(0f, 1f, fadeDuration));
+            SceneManager.LoadScene(creditsSceneName);
         }
-
-        // Pause finale
-        yield return new WaitForSeconds(holdDuration);
-
-        // Charger la scène de crédits
-        if (!string.IsNullOrEmpty(creditsSceneName))
+        else if (!string.IsNullOrEmpty(creditsSceneName))
         {
             SceneManager.LoadScene(creditsSceneName);
         }
+    }
+
+    /// <summary>
+    /// Fondu d'alpha entre start et end (0=transparent, 1=noir).
+    /// </summary>
+    private IEnumerator Fade(float start, float end, float duration)
+    {
+        float elapsed = 0f;
+        Color c = fadeImage.color;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(start, end, elapsed / duration);
+            fadeImage.color = new Color(c.r, c.g, c.b, t);
+            yield return null;
+        }
+
+        fadeImage.color = new Color(c.r, c.g, c.b, end);
     }
 }
